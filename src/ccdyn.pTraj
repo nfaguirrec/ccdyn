@@ -1,0 +1,212 @@
+#!/bin/bash
+
+target=$1 # Au
+
+cat /dev/null > He.xyz
+cat /dev/null > Au.xyz
+cat /dev/null > firstAtom.xyz
+cat /dev/null > cmHe.xyz
+# rm -rf cmHe.xyz
+# rm -rf firstAtom.xyz
+
+firstTime=1
+find . -name hist.xyz | sort | while read line
+do
+	if (( firstTime==1 ))
+	then
+		nAtoms=`head -n1 $line`
+		nAtoms=$(( $nAtoms-2 )) # porque esta el oro y el O
+		nBlocks=`grep -E "^[[:blank:]]*301" $line | wc -l`
+		firstTime=0
+	fi
+		
+	grep "Au" $line >> Au.xyz
+	echo "" >> Au.xyz
+	echo "" >> Au.xyz
+	
+	if [ "$target" = "Au" ]
+	then
+		continue
+	fi
+	
+	grep "He" $line | awk '
+	BEGIN{
+		n=1;m=1
+		nAtoms='`echo $nAtoms`'
+		minZ=0.0
+		oFileFirst = "firstAtom.xyz"
+		oFileAver = "cmHe.xyz"
+	}
+	{
+		map[n,m]=$0
+		
+		if( $4<minZ && m==1 ){
+			firstAtom = n
+			minZ = $4
+		}
+		
+		if( n<=nAtoms ){
+			n++
+		}else{
+			n=1
+			m++
+		}
+	}
+	END{
+		for(i=1;i<=nAtoms;i+=1){  # numero de atomos
+			for(j=1;j<m;j++){     # Paso de tiempo en la trayectoria
+				print map[i,j]
+			}
+			print "\n"
+		}
+		
+		for(j=1;j<m;j++){             # Paso de tiempo en la trayectoria
+			averX = 0.0
+			averY = 0.0
+			averZ = 0.0
+			for(i=1;i<=nAtoms;i+=1){  # numero de atomos
+				split( map[i,j], array )
+				averX += array[2]
+				averY += array[3]
+				averZ += array[4]
+			}
+			averZ = averZ/nAtoms
+			
+			print "He", averX, averY, averZ >> oFileAver
+		}
+		
+		for(j=1;j<m;j++){
+			print map[firstAtom,j] >> oFileFirst
+		}
+	}' >> He.xyz
+	
+	echo "" >> cmHe.xyz
+	echo "" >> cmHe.xyz
+	
+	echo "" >> He.xyz
+	echo "" >> He.xyz
+done
+
+zAverTraj(){
+	local iFile=$1
+	local oFile=$2
+	 
+	gawk  '
+	BEGIN{
+		n = 1
+		m = 1
+		mMax = 1
+	}
+	{
+		if( $1 ~ /^[[:blank:]]*$/ ){
+			mMax = m
+			m = 1
+			n++
+			getline
+		}else{
+			map[n,m] = $0
+			m++
+		}
+	}
+	END{
+		for(j=1;j<mMax;j++){  # Paso de tiempo
+			averZ = 0.0
+			for(i=1;i<n;i++){     # Trayectoria
+				split( map[i,j], array )
+				averZ += array[4]
+			}
+			averZ = averZ/(n-1)
+			
+			desvZ = 0.0
+			for(i=1;i<n;i++){     # Trayectoria
+				split( map[i,j], array )
+				desvZ += ( array[4] - averZ )**2
+			}
+			desvZ = sqrt(desvZ/(n-1))
+			
+			print averZ, desvZ
+		}
+	}
+	' $iFile > $oFile
+}
+
+zAverTraj Au.xyz zaverAu.dat
+zAverTraj cmHe.xyz zavercmHe.dat
+
+cat > plotHe.gnuplot << EOF
+set key left
+
+set xtics font "Serif,8"
+set ytics font "Serif,8"
+
+set format x "%3.0f"
+set format y "%3.0f"
+
+unset key
+
+#set xtics ( "0" 11, "20" 31, "40" 51, "60" 71, "80" 91, "100" 111, "120" 131, "140" 151 )
+# 50 m/s 
+# set xtics ( "0" 11, "20" 31, "40" 51, "60" 71, "80" 91, "100" 111, "120" 131, "140" 151 )
+# 100 m/s 
+# set xtics ( "0" 11, "10" 16, "20" 21, "30" 26, "40" 31, "50" 36, "60" 41 )
+# 200 m/s 
+# set xtics ( "0" 11, "5" 16, "10" 21, "15" 26 ,"20" 31, "25" 36, "30" 41, "35" 46, "40" 51 )
+
+
+# f(x)=a+b*x
+# fit [10:15] f(x) "Au.xyz" i 0 u :4 via a,b
+
+# fc=-30.0
+# xc=(fc-a)/b
+
+# set size 0.36,0.5
+# set multiplot
+# 
+# set origin 0.0,0.3
+# plot [] [-50:50] \
+# "He.xyz" u :2 w l, \
+# "Au.xyz" u :2 w l lc rgb "blue", \
+# 0 w l lc rgb "green"
+# 
+# set origin 0.3,0.3
+# plot [] [-50:50] \
+# "He.xyz" u :3 w l, \
+# "Au.xyz" u :3 w l lc rgb "blue", \
+# 0 w l lc rgb "green"
+# 
+# set origin 0.6,0.3
+# # -35:30
+# plot [] [-35:30] \
+# "He.xyz" u :4 w l, \
+# "firstAtom.xyz" u :4 w l lw 2 lc rgb "gray", \
+# "cmHe.xyz" u :1 w lp pt 7 ps 0.5 lw 1 lc rgb "black", \
+# "cmHe.xyz" u :1:2 w yerrorbars lw 1 lc rgb "black", \
+# "Au.xyz" u :4 w l lc rgb "blue", \
+# f(x) w l lc rgb "green", \
+# f(-(x-2.0*xc)) w l lc rgb "green"
+# 
+# unset multiplot
+
+# posShift=884
+# timeStep=1
+posShift=452
+timeStep=0.1
+# posShift=10
+# timeStep=0.1
+
+# "He.xyz" u ((\$0-posShift)*timeStep):4 w l, \
+
+plot [0:] [] \\
+"zaverAu.dat" u ((\$0-posShift)*timeStep):1 w lp pt 7 ps 0.5 lc rgb "blue", \\
+"zaverAu.dat" u ((\$0-posShift)*timeStep):1:2 w yerrorbars ps 0 lc rgb "blue", \\
+"zavercmHe.dat" u ((\$0-posShift)*timeStep):1 w lp pt 7 ps 0.5 lw 1 lc rgb "red", \\
+"zavercmHe.dat" u ((\$0-posShift)*timeStep):1:2 w yerrorbars ps 0 lw 1 lc rgb "red"
+
+# "Au.xyz" u ((\$0-posShift)*timeStep):4 w l lc rgb "blue"
+
+pause -1
+
+EOF
+
+gnuplot plotHe.gnuplot
+

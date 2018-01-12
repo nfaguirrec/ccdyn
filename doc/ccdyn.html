@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+
+
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>ccdyn</title></head><body><span style="color: red; font-weight: bold;">COMPILANDO EL PROGRAMA<br>
+<br>
+</span>$ tar xvfz ccdyn-XXXXXXXX.tar.gz<br>
+$ cd ccdyn<br>
+$ ls<br>
+doc&nbsp; examples&nbsp; src<br>
+$ cd src<br>
+$ make<br>
+$ export PATH=$PATH:$PWD<br>
+<span style="color: red; font-weight: bold;"><br>
+</span><span style="color: red; font-weight: bold;">PREPARANDO EL FICHERO DE ENTRADA<br>
+</span><br>
+Dentro del directorio de ejemplos (examples) usted puede encontrar el siguiente fichero de entrada<br>
+<br>
+<table style="text-align: left; width: 480px; height: 558px;" border="1" cellpadding="10" cellspacing="0"><tbody><tr align="center"><td colspan="2" rowspan="1" style="vertical-align: top;">N300.inp<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; text-align: right;">1<br>
+2<br>
+3<br>
+4<br>
+5<br>
+6<br>
+7<br>
+8<br>
+9<br>
+10<br>
+11<br>
+12<br>
+13<br>
+14<br>
+15<br>
+16<br>
+17<br>
+18<br>
+19<br>
+20<br>
+21<br>
+22<br>
+23<br>
+24<br>
+25<br>
+26<br>
+27<br>
+28<br>
+29<br>
+30<br>
+31<br>
+32<br>
+33<br>
+34<br>
+35<br>
+36<br>
+37<br>
+38<br>
+39<br>
+40<br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-family: monospace;">&amp;data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nAtoms = 301<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; initialDensity = "density.N300.dat"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; actions = "STSEPFS"<br>
+/<br>
+      <br>
+&amp;save<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; geometry = "geom.xyz0", "geom.xyz1", "geom.xyz2"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; adf = "geom.adf0", "geom.adf1", "geom.adf2"<br>
+/<br>
+      <br>
+&amp;thermalize<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nSteps = 1000<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeStep = 0.05<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; temperature = 0.1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tau = 0.4<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; showFrequency = 100<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; geometryHistoryFile = "hist.xyz"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; velocityHistoryFile = "hist.vxyz"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; integrator = "VelocityVerlet"<br>
+/<br>
+      <br>
+&amp;freeEvolution<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nSteps = 12000<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeStep = 0.005<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; showFrequency = 400<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; geometryHistoryFile = "hist.xyz"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; velocityHistoryFile = "hist.vxyz"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; integrator = "VelocityVerlet"<br>
+/<br>
+      <br>
+&amp;pushMolecule<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; velocity = 0.0, 0.0, -1.0<br>
+/<br>
+      <br>
+&amp;externalField<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; targetAtom = "He", "Au"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; origin = 0.0,0.0,-30.0,&nbsp; 0.0,0.0,-30.0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name = "HeTiO2_M3DP", "AuTiO2_SMSP"<br>
+/</span></td></tr></tbody></table><br>
+Las líneas que comienzan con ! o espacio en blanco son ignoradas. El fichero de entrada es sensible a las mayusculas.<br>
+<br>
+
+</body></html>

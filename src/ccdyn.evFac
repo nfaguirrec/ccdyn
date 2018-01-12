@@ -1,0 +1,123 @@
+#!/bin/bash
+
+getStickingProbability(){
+	local xyzFile=$1
+	
+	awk '
+		BEGIN{
+			trap=0
+			n=0
+		}
+		
+		($1=="He"){
+			if( $4+25.0 < 10.0 )
+				trap+=1
+				
+			n+=1
+		}
+		
+		END{
+			printf "%10.5f\n", 100.0*trap/n
+	}' $xyzFile
+}
+
+getAverageColumns(){
+	local gFiles=$*
+	
+	paste $gFiles > tmp
+	
+	awk '{
+		n=0     
+		sum=0
+		for(i=1;i<=NF;i+=1){
+			sum+=$i
+			n++
+		}
+		
+		aver = sum/n
+		
+		sum=0
+		for(i=1;i<=NF;i+=1){
+			sum+=($i-aver)*($i-aver)
+		}
+		
+		desv = sqrt(sum/(n-1.0))
+		
+		printf "%15.5f%15.5f\n", aver, desv
+	}' tmp
+	
+	rm tmp
+}
+
+plotSP(){
+	local spFiles=$*
+	
+	local colors=( "orange" "red" "forest-green" "midnight-blue" "blue" "brown" )
+	
+cat > asp.gnuplot <<EOF
+set termopt enhanced
+set encoding iso_8859_1
+
+unset key
+set size square
+set xrange [0:7]
+set yrange [:50]
+#set mxtics 5
+#set mytics 5
+
+set xlabel "t ( ps )" font "Serif,13"
+set ylabel "Sticking factor ( % )" font "Serif,13"
+
+set xtics rotate by 30 offset -1.7,-1.2
+
+f(x)=a/x**2+b
+
+fit f(x) "asp.dat" u 1:3:4 via a,b
+
+plot \
+f(x) w l ls 0 lw 2 lc rgb "${colors[1]}", \
+"asp.dat" u 1:3:4:xtic(2) w ye pt 7 lw 1.2 lc rgb "${colors[1]}", \
+"" u 1:3 w p pt 7 ps 1.7 lc rgb "white", \
+"" u 1:3 w p pt 7 ps 1.5 lc rgb "${colors[1]}", \
+"" u 1:3 w p pt 7 ps 0.6 lc rgb "white"
+
+pause -1
+EOF
+	
+	gnuplot asp.gnuplot
+}
+
+main(){
+	local inputFile=$1
+	
+	awk '
+	BEGIN{loc=0}
+	{
+		if($1=="/") loc=0
+		if(loc==1) print $0
+		if($1=="&save") loc=1
+	}' $inputFile | grep "geometry" > .geomFiles
+	
+	sed -i -r '{s/geometry[[:blank:]]*=//g;s/,[[:blank:]]/ /g;s/\"//g}' .geomFiles
+	
+	for typeFile in `cat .geomFiles`
+	do
+		for xyzFile in `find . -name $typeFile`
+		do
+			getStickingProbability ${xyzFile} > ${xyzFile%.*}.sp
+		done
+		
+		getAverageColumns `find . -name ${typeFile%.*}.sp` > ${typeFile%.*}.asp
+	done
+	
+	ls *.asp | awk 'BEGIN{n=1}{for(i=1;i<=NF;i++){ printf "%7d%15s\n",n,$i }; n+=1 }' | sed 's/.asp//g' > .tmpASPLabels
+	cat `ls *.asp` > .tmpASPValues
+	paste .tmpASPLabels .tmpASPValues > asp.dat
+	rm .tmpASPLabels .tmpASPValues
+	
+	plotSP asp.dat
+	
+	rm .geomFiles
+}
+
+main $*

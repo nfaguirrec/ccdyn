@@ -1,0 +1,143 @@
+#!/bin/bash
+
+getZHistogram(){
+	local xyzFile=$1
+	
+	awk '
+	BEGIN{
+		zBegin = 0.0
+		zEnd = 200.0
+		hz = 6.0
+	}
+
+	(NR>2){
+		n=int( ($4-zBegin)/hz )
+		
+		if( n in mymap )
+			mymap[n] += 1
+		else
+			mymap[n] = 1
+	}
+
+	END{
+		sum=0.0
+		for( n in mymap )
+			sum += mymap[n]
+		
+		nEnd = int( (zEnd-zBegin)/hz )
+		for( n=0; n<=nEnd; n++ )
+			printf "%7d%15.7f\n", zBegin+n*hz, mymap[n]/(hz*sum)
+	}
+	' $xyzFile | sort -n -k 1
+}
+
+getAverageColumns2n(){
+	local gFiles=$*
+	
+	paste $gFiles > .tmpAver
+	
+	awk '{
+		n=0
+		
+		sum=0
+		for(i=2;i<=NF;i+=2){
+			sum+=$i
+			n++
+		}
+		
+		aver = sum/n
+		
+		sum=0
+		for(i=2;i<=NF;i+=2){
+			sum+=($i-aver)*($i-aver)
+		}
+		
+		desv = sqrt(sum/(n-1.0))
+		
+		printf "%7d%15.7f%15.7f\n", $1, aver, desv
+	}' .tmpAver
+	
+	rm .tmpAver
+}
+
+plotZH(){
+	local azhFiles=$*
+	
+	local colors=( "orange" "red" "forest-green" "midnight-blue" "blue" "brown" )
+	
+cat > azh.gnuplot <<EOF
+set termopt enhanced
+set encoding iso_8859_1
+
+set size 1.0,0.6
+set xrange [:150]
+set yrange [-0.002:]
+set mxtics 5
+set mytics 5
+
+set xlabel "z ( \305 )" font "Serif,13"
+set ylabel "P_z ( \305^{-1} )" font "Serif,13"
+
+plot \\
+EOF
+	nFiles=`echo $azhFiles | wc -w`
+	
+	i=1
+	for iFile in $azhFiles
+	do
+		color=${colors[$(($i-1))]}
+		
+cat >> azh.gnuplot <<EOF
+"$iFile" u (\$1+0.5*6.0):2:((\$2==0.0)?1e2:\$2*4e0) notitle smooth acspline w lines lw 3 lc rgb "$color", \\
+"" u (\$1+0.5*6.0):2 notitle w points pt 7 ps 1.4 lc rgb "white", \\
+"" u (\$1+0.5*6.0):2:3 title "${iFile%.*}" w yerrorbars pt 7 ps 1.2 lw 1.0 lc rgb "$color", \\
+"" u (\$1+0.5*6.0):2 notitle w points pt 7 ps 0.6 lc rgb "white" \\
+EOF
+		
+		if [ "$i" -ne "$nFiles" ]
+		then
+			echo ", \\" >> azh.gnuplot
+		else
+			echo "" >> azh.gnuplot
+		fi
+		
+		i=$(( $i+1 ))
+	done
+	
+	echo "" >> azh.gnuplot
+	echo "pause -1" >> azh.gnuplot
+	
+	gnuplot azh.gnuplot
+}
+
+main(){
+	local inputFile=$1
+	
+	awk '
+	BEGIN{loc=0}
+	{
+		if($1=="/") loc=0
+		if(loc==1) print $0
+		if($1=="&save") loc=1
+	}' $inputFile | grep "geometry" > .geomFiles
+	
+	sed -i -r '{s/geometry[[:blank:]]*=//g;s/,[[:blank:]]/ /g;s/\"//g}' .geomFiles
+	
+	for typeFile in `cat .geomFiles`
+	do
+		for xyzFile in `find . -name $typeFile`
+		do
+			getZHistogram ${xyzFile} > ${xyzFile%.*}.zh
+		done
+		
+		getAverageColumns2n `find . -name ${typeFile%.*}.zh` > ${typeFile%.*}.azh
+	done
+	
+	plotZH `ls *.azh`
+	
+	rm .geomFiles
+}
+
+main $*
+
+
