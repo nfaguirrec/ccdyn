@@ -37,6 +37,8 @@ program test_
 	use AuTiO2Potential_
 	use HeTiO2Potential_
 	use AtomicElementsDB_
+	use NiOPotential_
+	use NiNiPotential_
 	implicit none
 	
 ! 	call HeDroplet_test()
@@ -44,9 +46,11 @@ program test_
 ! 	call HeHePotential_test()
 ! 	call HeAuPotential_test()
 !  	call AuAuPotential_test()
- 	call ArArPotential_test()
+!  	call ArArPotential_test()
 !  	call AuTiO2Potential_test()
 !  	call ClassicalDynamics_test()
 ! 	call AtomicElementsDB_test()
+! 	call NiOPotential_test()
+	call NiNiPotential_test()
 	
 end program test_
