@@ -4,10 +4,10 @@
 !!    http://www.iff.csic.es/fama/                                                 !
 !!                                                                                 !
 !!    Authors:                                                                     !
-!!    (2011-2015) Néstor F. Aguirre                                                !
+!!    (2011-2018) Néstor F. Aguirre                                                !
 !!                nfaguirrec@iff.csic.es                                           !
 !!                nfaguirrec@gmail.com                                             !
-!!    (2011-2012) María Pilar de Lara-Castells                                     !
+!!    (2011-2018) María Pilar de Lara-Castells                                     !
 !!                delara@iff.csic.es                                               !
 !!                                                                                 !
 !!    This program is free software; you can redistribute it and/or modify         !
@@ -39,6 +39,9 @@ module ClassicalDynamics_
 	use MgMgPotential_
 	use HeMgPotential_
 	use ArArPotential_
+	use NiNiPotential_
+	use NiOPotential_
+	
 	use RandomSampler_
 	use HeDroplet_
 	use MDIntegrator_
@@ -119,6 +122,8 @@ module ClassicalDynamics_
 	type(AuAuPotential), private :: AuAuPot
 	type(HeMgPotential), private :: HeMgPot
 	type(ArArPotential), private :: ArArPot
+	type(ArArPotential), private :: NiNiPot
+	type(ArArPotential), private :: NiOPot
 	
 	interface
 		function protVext( symbol, x, y, z ) result( V )
@@ -230,6 +235,8 @@ module ClassicalDynamics_
 		call AuAuPot.init()
 		call HeMgPot.init()
 		call ArArPot.init()
+		call NiNiPot.init()
+		call NiOPot.init()
 	end subroutine fromHeDroplet
 	
 	!*
@@ -340,6 +347,8 @@ module ClassicalDynamics_
 		call AuAuPot.init()
 		call HeMgPot.init()
 		call ArArPot.init()
+		call NiNiPot.init()
+		call NiOPot.init()
 	end subroutine fromFile
 	
 	!*
@@ -446,10 +455,10 @@ module ClassicalDynamics_
 		real(8) :: output
 		
 		output = 0.0_8
-! 		if( trim(symbol1) == "He" .and. trim(symbol2) == "He" ) then
-! 			
-! 			output = HeHePot.V( r/angs )*cm1
-! 		
+		if( trim(symbol1) == "He" .and. trim(symbol2) == "He" ) then
+			
+			output = HeHePot.V( r/angs )*cm1
+		
 ! 		else if( trim(symbol1) == "Au" .and. trim(symbol2) == "Au" ) then
 ! 		
 ! 			output = AuAuPot.V( r/angs )*cm1
@@ -468,14 +477,23 @@ module ClassicalDynamics_
 ! 			
 ! 			output = HeMgPot.V( r/angs )*cm1
 ! 			
-! 		else if( trim(symbol1) == "Ar" .and. trim(symbol2) == "Ar" ) then
+		else if( trim(symbol1) == "Ar" .and. trim(symbol2) == "Ar" ) then
 			
 			output = ArArPot.V( r )
+			
+		else if( trim(symbol1) == "Ni" .and. trim(symbol2) == "Ni" ) then
+			
+			output = NiNiPot.V( r )
 		
-! 		else
-! 			write(*,*) "### ERROR ### Potential pair (",symbol1,",",symbol2,") is not implemented"
-! 			stop
-! 		end if
+		else if( ( trim(symbol1) == "Ni" .and. trim(symbol2) == "O"  ) .or. &
+			 ( trim(symbol1) == "O"  .and. trim(symbol2) == "Ni" ) ) then
+			
+			output = NiOPot.V( r )
+			
+		else
+			write(*,*) "### ERROR ### Potential pair (",symbol1,",",symbol2,") is not implemented"
+			stop
+		end if
 		
 	end function potBySym
 	

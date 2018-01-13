@@ -51,7 +51,7 @@ module NiOPotential_
 	real(8), private :: rMass
 	real(8), private :: alpha
 
-	type, public :: AuAuPotential
+	type, public :: NiOPotential
 		integer :: model
 		
 		contains
@@ -59,7 +59,7 @@ module NiOPotential_
 			procedure :: V
 			procedure :: dV
 			procedure :: NdV
-	end type AuAuPotential
+	end type NiOPotential
 	
 	contains
 	
@@ -67,7 +67,7 @@ module NiOPotential_
 	!! @brief Contructor
 	!!
 	subroutine init( this, model )
-			class(AuAuPotential) :: this
+			class(NiOPotential) :: this
 			integer, optional, intent(in) :: model
 			
 			real(8) :: massNi, massO
@@ -93,7 +93,7 @@ module NiOPotential_
 	end subroutine init
 	
 	function V( this, R ) result( output )
-		class(AuAuPotential), intent(in) :: this
+		class(NiOPotential), intent(in) :: this
 		real(8), intent(in) :: R
 		real(8) :: output
 		
@@ -104,11 +104,11 @@ module NiOPotential_
 				output = De*( exp(-2.0_8*alpha*(R*angs-Re)) - 2.0_8*exp(-alpha*(R*angs-Re)) )
 		end select
 		
-		output = output/cm1
+		output = output
 	end function V
 	
 	function dV( this, R ) result( output )
-		class(AuAuPotential), intent(in) :: this
+		class(NiOPotential), intent(in) :: this
 		real(8), intent(in) :: R
 		real(8) :: output
 		
@@ -117,11 +117,11 @@ module NiOPotential_
 				output = 2.0_8*De*alpha*( exp(alpha*(Re-R*angs))-exp(2*alpha*(Re-R*angs)) )
 		end select
 		
- 		output = output/(cm1/angs)
+ 		output = output
 	end function dV
 	
 	function NdV( this, R, nPoints, stepSize ) result( output )
-		class(AuAuPotential), intent(in) :: this
+		class(NiOPotential), intent(in) :: this
 		real(8), intent(in) :: R
 		integer, optional, intent(in) :: nPoints
 		real(8), optional, intent(in) :: stepSize
@@ -156,7 +156,7 @@ module NiOPotential_
 	
 	subroutine NiOPotential_test()
 		real(8) :: r
-		type(AuAuPotential) :: potential
+		type(NiOPotential) :: potential
 		
 		call potential.init( MORSE )
 		

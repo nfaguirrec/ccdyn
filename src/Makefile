@@ -4,7 +4,7 @@ FCFLAGS = -traceback -mkl -fpic -w -I. -g -fpp -fpe0 -I${HOME}/Software/scift/fi
 LDFLAGS = -L${HOME}/Software/scift -lscift
 TLIB = 
 
-all: ArArPotential.o AuAuPotential.o AuTiO2Potential.o ClassicalDynamics.o EmbeddingInterface.o HeAuPotential.o HeDroplet.o HeHePotential.o HeMgPotential.o HeTiO2Potential.o MDIntegrator.o MgMgPotential.o  $(TLIB) ccdyn HeDropletInitialGuess test 
+all: ArArPotential.o AuAuPotential.o AuTiO2Potential.o ClassicalDynamics.o EmbeddingInterface.o HeAuPotential.o HeDroplet.o HeHePotential.o HeMgPotential.o HeTiO2Potential.o MDIntegrator.o MgMgPotential.o NiNiPotential.o NiOPotential.o  $(TLIB) ccdyn HeDropletInitialGuess test 
 
 ArArPotential.o ararpotential_.mod: ArArPotential.f90 
 	fmake
@@ -21,12 +21,12 @@ AuTiO2Potential.o autio2potential_.mod: AuTiO2Potential.f90
 	echo -n 'Building AuTiO2Potential.f90 '
 	time -f "(%E)" $(FC) $(FCFLAGS) -c AuTiO2Potential.f90
 
-ccdyn: ccdyn.f90 HeHePotential.o AuTiO2Potential.o ArArPotential.o MgMgPotential.o HeAuPotential.o AuAuPotential.o HeDroplet.o ClassicalDynamics.o EmbeddingInterface.o MDIntegrator.o HeMgPotential.o HeTiO2Potential.o hehepotential_.mod autio2potential_.mod ararpotential_.mod mgmgpotential_.mod heaupotential_.mod auaupotential_.mod hedroplet_.mod classicaldynamics_.mod embeddinginterface_.mod mdintegrator_.mod hemgpotential_.mod hetio2potential_.mod
+ccdyn: ccdyn.f90 HeHePotential.o AuTiO2Potential.o ArArPotential.o MgMgPotential.o HeAuPotential.o AuAuPotential.o HeDroplet.o ClassicalDynamics.o EmbeddingInterface.o NiNiPotential.o NiOPotential.o MDIntegrator.o HeMgPotential.o HeTiO2Potential.o hehepotential_.mod autio2potential_.mod ararpotential_.mod mgmgpotential_.mod heaupotential_.mod auaupotential_.mod hedroplet_.mod classicaldynamics_.mod embeddinginterface_.mod ninipotential_.mod niopotential_.mod mdintegrator_.mod hemgpotential_.mod hetio2potential_.mod
 	fmake
 	echo -n 'Building ccdyn.f90 '
-	time -f "(%E)" $(FC) $(FCFLAGS) ccdyn.f90 HeHePotential.o AuTiO2Potential.o ArArPotential.o MgMgPotential.o HeAuPotential.o AuAuPotential.o HeDroplet.o ClassicalDynamics.o EmbeddingInterface.o MDIntegrator.o HeMgPotential.o HeTiO2Potential.o -o ccdyn $(LDFLAGS)
+	time -f "(%E)" $(FC) $(FCFLAGS) ccdyn.f90 HeHePotential.o AuTiO2Potential.o ArArPotential.o MgMgPotential.o HeAuPotential.o AuAuPotential.o HeDroplet.o ClassicalDynamics.o EmbeddingInterface.o NiNiPotential.o NiOPotential.o MDIntegrator.o HeMgPotential.o HeTiO2Potential.o -o ccdyn $(LDFLAGS)
 
-ClassicalDynamics.o classicaldynamics_.mod: ClassicalDynamics.f90 hehepotential_.mod ararpotential_.mod mgmgpotential_.mod heaupotential_.mod auaupotential_.mod hedroplet_.mod embeddinginterface_.mod mdintegrator_.mod hemgpotential_.mod
+ClassicalDynamics.o classicaldynamics_.mod: ClassicalDynamics.f90 hehepotential_.mod ararpotential_.mod mgmgpotential_.mod heaupotential_.mod auaupotential_.mod hedroplet_.mod embeddinginterface_.mod ninipotential_.mod niopotential_.mod mdintegrator_.mod hemgpotential_.mod
 	fmake
 	echo -n 'Building ClassicalDynamics.f90 '
 	time -f "(%E)" $(FC) $(FCFLAGS) -c ClassicalDynamics.f90
@@ -76,10 +76,20 @@ MgMgPotential.o mgmgpotential_.mod: MgMgPotential.f90
 	echo -n 'Building MgMgPotential.f90 '
 	time -f "(%E)" $(FC) $(FCFLAGS) -c MgMgPotential.f90
 
-test: test.f90 AuTiO2Potential.o HeHePotential.o ArArPotential.o MgMgPotential.o HeAuPotential.o AuAuPotential.o EmbeddingInterface.o HeDroplet.o ClassicalDynamics.o MDIntegrator.o HeMgPotential.o HeTiO2Potential.o autio2potential_.mod hehepotential_.mod ararpotential_.mod mgmgpotential_.mod heaupotential_.mod auaupotential_.mod embeddinginterface_.mod hedroplet_.mod classicaldynamics_.mod mdintegrator_.mod hemgpotential_.mod hetio2potential_.mod
+NiNiPotential.o ninipotential_.mod: NiNiPotential.f90 
+	fmake
+	echo -n 'Building NiNiPotential.f90 '
+	time -f "(%E)" $(FC) $(FCFLAGS) -c NiNiPotential.f90
+
+NiOPotential.o niopotential_.mod: NiOPotential.f90 
+	fmake
+	echo -n 'Building NiOPotential.f90 '
+	time -f "(%E)" $(FC) $(FCFLAGS) -c NiOPotential.f90
+
+test: test.f90 AuTiO2Potential.o HeHePotential.o ArArPotential.o MgMgPotential.o HeAuPotential.o AuAuPotential.o EmbeddingInterface.o HeDroplet.o ClassicalDynamics.o NiNiPotential.o NiOPotential.o MDIntegrator.o HeMgPotential.o HeTiO2Potential.o autio2potential_.mod hehepotential_.mod ararpotential_.mod mgmgpotential_.mod heaupotential_.mod auaupotential_.mod embeddinginterface_.mod hedroplet_.mod classicaldynamics_.mod ninipotential_.mod niopotential_.mod mdintegrator_.mod hemgpotential_.mod hetio2potential_.mod
 	fmake
 	echo -n 'Building test.f90 '
-	time -f "(%E)" $(FC) $(FCFLAGS) test.f90 AuTiO2Potential.o HeHePotential.o ArArPotential.o MgMgPotential.o HeAuPotential.o AuAuPotential.o EmbeddingInterface.o HeDroplet.o ClassicalDynamics.o MDIntegrator.o HeMgPotential.o HeTiO2Potential.o -o test $(LDFLAGS)
+	time -f "(%E)" $(FC) $(FCFLAGS) test.f90 AuTiO2Potential.o HeHePotential.o ArArPotential.o MgMgPotential.o HeAuPotential.o AuAuPotential.o EmbeddingInterface.o HeDroplet.o ClassicalDynamics.o NiNiPotential.o NiOPotential.o MDIntegrator.o HeMgPotential.o HeTiO2Potential.o -o test $(LDFLAGS)
 
 clean:
 	rm -f *.o *.mod *~ .deps ccdyn HeDropletInitialGuess test  2> /dev/null

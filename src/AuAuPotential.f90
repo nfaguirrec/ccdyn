@@ -122,7 +122,7 @@ module AuAuPotential_
 				output = (1.0_8-damp)*( morsev+pauli ) - damp*disp
 		end select
 		
-		output = output/cm1
+		output = output
 	end function V
 	
 	function dV( this, R ) result( output )
@@ -137,7 +137,7 @@ module AuAuPotential_
 				output = this.NdV( R )*cm1
 		end select
 		
- 		output = output/(cm1/angs)
+ 		output = output
 	end function dV
 	
 	function NdV( this, R, nPoints, stepSize ) result( output )

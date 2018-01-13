@@ -142,7 +142,7 @@ module NiNiPotential_
 		call potential.init( LENNARD_JONES )
 		
 		do r = 1.0*angs,10.0*angs,0.01*angs
-			write(*,"(4E15.7)") r/angs, potential.V( r )/cm1, potential.dV( r )/(cm1/angs), potential.NdV( r )/(cm1/angs)
+			write(*,"(4E15.7)") r/angs, potential.V( r )/eV, potential.dV( r )/(eV/angs), potential.NdV( r )/(eV/angs)
 		end do
 		
 	end subroutine NiNiPotential_test
