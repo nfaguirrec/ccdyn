@@ -8,7 +8,7 @@
 !!                nfaguirrec@iff.csic.es                                           !
 !!                nfaguirrec@gmail.com                                             !
 !!    (2011-2018) María Pilar de Lara-Castells                                     !
-!!                delara@iff.csic.es                                               !
+!!                pilar.delara.castells@csic.es                                    !
 !!                                                                                 !
 !!    This program is free software; you can redistribute it and/or modify         !
 !!    it under the terms of the GNU General Public License as published by         !
