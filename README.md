@@ -22,6 +22,17 @@ ccdyn only supports pair potentials. The following set of parameters are availab
 9) Ni-Ni [[V.P. Filippova et al., *Inorganic Materials: Applied Research*](https://link.springer.com/article/10.1134/S2075113315010062)]
 10) Ni-O [[S.P. Walch and W.A. Goddard, *J. Am. Chem. Soc.* **100**, 1338 (1978)](https://link.springer.com/article/10.1134/S2075113315010062)]
 
+## Authors
+
+* Nestor F. Aguirre ( nfaguirrec@gmail.com )
+* Maria P. de Lara-Castells ( pilar.delara.castells@csic.es )
+
+# Citing
+
+To cite the code, please proceed as follows:
+
+[![DOI](https://zenodo.org/badge/117065059.svg)](https://zenodo.org/badge/latestdoi/117065059)
+
 The following is an example of an input file:
 
 ```
@@ -68,8 +79,3 @@ The following is an example of an input file:
 In this example, a droplet doped with a gold atom is created from a density file. Then the droplet is thermalized, freely evolved and finally is pushed to collide against to a TiO2 surface. The graphical representation of the simulation is shown in the following figure:
 
 ![Terminal](doc/AuHeDroplet.png)
-
-# Authors
-
-* Nestor F. Aguirre ( nfaguirrec@gmail.com )
-* Maria P. de Lara-Castells ( pilar.delara.castells@csic.es )
