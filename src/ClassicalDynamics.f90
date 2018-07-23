@@ -41,6 +41,7 @@ module ClassicalDynamics_
 	use ArArPotential_
 	use NiNiPotential_
 	use NiOPotential_
+	use CoCoPotential_
 	
 	use RandomSampler_
 	use HeDroplet_
@@ -124,6 +125,7 @@ module ClassicalDynamics_
 	type(ArArPotential), private :: ArArPot
 	type(ArArPotential), private :: NiNiPot
 	type(ArArPotential), private :: NiOPot
+	type(ArArPotential), private :: CoCoPot
 	
 	interface
 		function protVext( symbol, x, y, z ) result( V )
@@ -237,6 +239,7 @@ module ClassicalDynamics_
 		call ArArPot.init()
 		call NiNiPot.init()
 		call NiOPot.init()
+		call CoCoPot.init()
 	end subroutine fromHeDroplet
 	
 	!*
@@ -349,6 +352,7 @@ module ClassicalDynamics_
 		call ArArPot.init()
 		call NiNiPot.init()
 		call NiOPot.init()
+		call CoCoPot.init()
 	end subroutine fromFile
 	
 	!*
@@ -459,27 +463,31 @@ module ClassicalDynamics_
 			
 			output = HeHePot.V( r/angs )*cm1
 		
-! 		else if( trim(symbol1) == "Au" .and. trim(symbol2) == "Au" ) then
-! 		
-! 			output = AuAuPot.V( r/angs )*cm1
-! 			
-! 		else if( trim(symbol1) == "Mg" .and. trim(symbol2) == "Mg" ) then
-! 		
-! 			output = MgMgPot.V( r/angs )*cm1
-! 			
-! 		else if( ( trim(symbol1) == "He" .and. trim(symbol2) == "Au" ) .or. &
-! 			 ( trim(symbol1) == "Au" .and. trim(symbol2) == "He" ) ) then
-! 			
-! 			output = HeAuPot.V( r/angs )*cm1
-! 			
-! 		else if( ( trim(symbol1) == "He" .and. trim(symbol2) == "Mg" ) .or. &
-! 			 ( trim(symbol1) == "Mg" .and. trim(symbol2) == "He" ) ) then
-! 			
-! 			output = HeMgPot.V( r/angs )*cm1
-! 			
+		else if( trim(symbol1) == "Au" .and. trim(symbol2) == "Au" ) then
+		
+			output = AuAuPot.V( r/angs )*cm1
+			
+		else if( trim(symbol1) == "Mg" .and. trim(symbol2) == "Mg" ) then
+		
+			output = MgMgPot.V( r/angs )*cm1
+			
+		else if( ( trim(symbol1) == "He" .and. trim(symbol2) == "Au" ) .or. &
+			 ( trim(symbol1) == "Au" .and. trim(symbol2) == "He" ) ) then
+			
+			output = HeAuPot.V( r/angs )*cm1
+			
+		else if( ( trim(symbol1) == "He" .and. trim(symbol2) == "Mg" ) .or. &
+			 ( trim(symbol1) == "Mg" .and. trim(symbol2) == "He" ) ) then
+			
+			output = HeMgPot.V( r/angs )*cm1
+			
 		else if( trim(symbol1) == "Ar" .and. trim(symbol2) == "Ar" ) then
 			
 			output = ArArPot.V( r )
+			
+		else if( trim(symbol1) == "Fe" .and. trim(symbol2) == "Fe" ) then
+			
+			output = CoCoPot.V( r )
 			
 		else if( trim(symbol1) == "Ni" .and. trim(symbol2) == "Ni" ) then
 			
@@ -507,36 +515,40 @@ module ClassicalDynamics_
 		real(8) :: output
 		
 		output = 0.0_8
-! 		if( trim(symbol1) == "He" .and. trim(symbol2) == "He" ) then
-! 			
-! 			output = HeHePot.dV( r/angs )*(cm1/angs)
-! 		
-! 		else if( trim(symbol1) == "Au" .and. trim(symbol2) == "Au" ) then
-! 		
-! 			output = AuAuPot.dV( r/angs )*(cm1/angs)
-! 			
-! 		else if( trim(symbol1) == "Mg" .and. trim(symbol2) == "Mg" ) then
-! 		
-! 			output = MgMgPot.dV( r/angs )*(cm1/angs)
-! 			
-! 		else if( ( trim(symbol1) == "He" .and. trim(symbol2) == "Au" ) .or. &
-! 			 ( trim(symbol1) == "Au" .and. trim(symbol2) == "He" ) ) then
-! 			
-! 			output = HeAuPot.dV( r/angs )*(cm1/angs)
-! 			
-! 		else if( ( trim(symbol1) == "He" .and. trim(symbol2) == "Mg" ) .or. &
-! 			 ( trim(symbol1) == "Mg" .and. trim(symbol2) == "He" ) ) then
-! 			
-! 			output = HeMgPot.dV( r/angs )*(cm1/angs)
-! 			
-! 		else if( trim(symbol1) == "Ar" .and. trim(symbol2) == "Ar" ) then
-! 			
+		if( trim(symbol1) == "He" .and. trim(symbol2) == "He" ) then
+			
+			output = HeHePot.dV( r/angs )*(cm1/angs)
+		
+		else if( trim(symbol1) == "Au" .and. trim(symbol2) == "Au" ) then
+		
+			output = AuAuPot.dV( r/angs )*(cm1/angs)
+			
+		else if( trim(symbol1) == "Mg" .and. trim(symbol2) == "Mg" ) then
+		
+			output = MgMgPot.dV( r/angs )*(cm1/angs)
+			
+		else if( ( trim(symbol1) == "He" .and. trim(symbol2) == "Au" ) .or. &
+			 ( trim(symbol1) == "Au" .and. trim(symbol2) == "He" ) ) then
+			
+			output = HeAuPot.dV( r/angs )*(cm1/angs)
+			
+		else if( ( trim(symbol1) == "He" .and. trim(symbol2) == "Mg" ) .or. &
+			 ( trim(symbol1) == "Mg" .and. trim(symbol2) == "He" ) ) then
+			
+			output = HeMgPot.dV( r/angs )*(cm1/angs)
+			
+		else if( trim(symbol1) == "Ar" .and. trim(symbol2) == "Ar" ) then
+			
 			output = ArArPot.dV( r )
 			
-! 		else
-! 			write(*,*) "### ERROR ### Potential pair (",symbol1,",",symbol2,") is not implemented"
-! 			stop
-! 		end if
+		else if( trim(symbol1) == "Fe" .and. trim(symbol2) == "Fe" ) then
+			
+			output = CoCoPot.dV( r )
+			
+		else
+			write(*,*) "### ERROR ### Potential pair (",symbol1,",",symbol2,") is not implemented"
+			stop
+		end if
 		
 	end function dpotBySym
 	

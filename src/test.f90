@@ -39,6 +39,7 @@ program test_
 	use AtomicElementsDB_
 	use NiOPotential_
 	use NiNiPotential_
+	use CoCoPotential_
 	implicit none
 	
 ! 	call HeDroplet_test()
@@ -51,6 +52,7 @@ program test_
 !  	call ClassicalDynamics_test()
 ! 	call AtomicElementsDB_test()
 ! 	call NiOPotential_test()
-	call NiNiPotential_test()
+! 	call NiNiPotential_test()
+	call CoCoPotential_test()
 	
 end program test_
