@@ -124,7 +124,7 @@ module CoCoPotential_
 			case( MORSE )
 				output = De*( exp(-2.0_8*alpha*(R*angs-Re)) - 2.0_8*exp(-alpha*(R*angs-Re)) )
 			case( GUPTA )
-				output = 2.0*beta( xi, p, r0, R )
+				output = 2.0_8*beta( xi, p, r0, R )
 		end select
 		
 		output = output
@@ -142,7 +142,7 @@ module CoCoPotential_
 			case( MORSE )
 				output = 2.0_8*De*alpha*( exp(alpha*(Re-R*angs))-exp(2*alpha*(Re-R*angs)) )
 			case( GUPTA )
-				output = dbeta( xi, p, r0, R )
+				output = 2.0_8*dbeta( xi, p, r0, R )
 		end select
 		
  		output = output
@@ -215,7 +215,7 @@ module CoCoPotential_
 					rij(:) = positions(:,i)-positions(:,j)
 					d = norm2(rij)
 					
-					output = output + beta( zeta**2, 2.0_8*q, r0, d )
+					output = output + beta( 1.0_8, 2.0_8*q, r0, d )
 				end if
 				
 				iter => iter.next
@@ -227,21 +227,21 @@ module CoCoPotential_
 					rij(:) = positions(:,i)-positions(:,j)
 					d = norm2(rij)
 					
-					output = output + beta( zeta**2, 2.0_8*q, r0, d )
+					output = output + beta( 1.0_8, 2.0_8*q, r0, d )
 				end if
 			end do
 		end if
 		
-		output = -sqrt( output )
+		output = -zeta*sqrt( output )
 		
 	end function Vnl
 	
 	!>
 	!! @brief Returns the derivative of the nonlocal component of the potential for the particle i in a.u.
 	!!
-	function dVnl( this, i, k, l, positions, neighbourList, Vnl ) result( output )
+	function dVnl( this, i, j, positions, neighbourList, Vnl ) result( output )
 		class(CoCoPotential), intent(in) :: this
-		integer :: i, k, l
+		integer :: i, k
 		real(8), allocatable :: positions(:,:)
 		type(IntegerList), optional, allocatable :: neighbourList(:)
 		real(8), optional :: Vnl
@@ -277,13 +277,11 @@ module CoCoPotential_
 ! 		else
 ! 			do j=1,N
 ! 				if( i/=j ) then
-				if( k/=l ) then
-				
-					rij(:) = positions(:,k)-positions(:,l)
+					rij(:) = positions(:,i)-positions(:,j)
 					d = norm2(rij)
 				
-					output = output + dbeta( zeta**2, 2.0_8*q, r0, d )
-				end if
+					output = zeta**2*dbeta( 1.0_8, 2.0_8*q, r0, d )
+! 				end if
 ! 				end if
 ! 			end do
 ! 		end if
@@ -291,7 +289,7 @@ module CoCoPotential_
 		if( present(Vnl) ) then
 			output = output/2.0_8/Vnl
 		else
-			output = output/2.0_8/this.Vnl( i, positions )
+			output = output*( 1.0_8/this.Vnl( i, positions ) + 1.0_8/this.Vnl( j, positions ) )/2.0_8
 ! 			output = output/2.0_8/this.Vnl( i, positions, neighbourList )
 		end if
 		
@@ -364,7 +362,7 @@ module CoCoPotential_
 		
 		N = size(positions,dim=2)
 		
-		call getNeighbourList( positions, 10.0_8*angs, neighbourList )
+! 		call getNeighbourList( positions, 10.0_8*angs, neighbourList )
 		
 		V = 0.0_8
 		
@@ -379,7 +377,7 @@ module CoCoPotential_
 					F(:,i) = F(:,i) - (rij(:)/d)*potential.dV( d )
 					
 ! 					do k=1,N
-						F(:,i) = F(:,i) - (rij(:)/d)*potential.dVnl( i, i, j, positions )
+						F(:,i) = F(:,i) - (rij(:)/d)*potential.dVnl( i, j, positions )
 ! 					end do
 				end if
 			end do
@@ -620,6 +618,85 @@ module CoCoPotential_
 		write(*,"(A,F10.5,A)") "Energy   = ", V/eV, " eV"
 		write(*,"(A,F10.5,A)") "Expected = ", -104.1809983, " eV"
 		write(*,"(A,F10.5,A)") "Error    = ", V/eV-(-104.1809983_8), " eV"
+		write(*,*) ""
+		write(*,"(A,F10.5,A)") "Gradient = ", sqrt(sum(forces**2)/real(N,8))/(eV/r0), " eV/r0"
+		
+		deallocate( positions )
+		deallocate( forces )
+		
+		write(*,*) ""
+		write(*,*) "#=============="
+		write(*,*) "# Testing N=56"
+		write(*,*) "#=============="
+		write(*,*) ""
+		N = 56
+		allocate( positions(3,N) )
+		allocate( forces(3,N) )
+		
+		positions(:, 1) = [ -0.903625, -0.101556, -0.024650 ]
+		positions(:, 2) = [ -1.279710, -0.719799,  0.616673 ]
+		positions(:, 3) = [ -0.434606,  0.396516,  0.693802 ]
+		positions(:, 4) = [  0.385426,  0.595684, -0.664566 ]
+		positions(:, 5) = [  0.217956, -1.613580, -0.152113 ]
+		positions(:, 6) = [ -0.005269,  0.390654,  1.566230 ]
+		positions(:, 7) = [  0.457834, -0.011575,  0.814862 ]
+		positions(:, 8) = [  1.058680, -1.532780,  0.371505 ]
+		positions(:, 9) = [ -0.480983,  0.770649, -0.220269 ]
+		positions(:,10) = [  0.965259,  0.112565, -0.025248 ]
+		positions(:,11) = [  1.322180,  0.952945,  0.301643 ]
+		positions(:,12) = [  1.910340,  0.220979, -0.027352 ]
+		positions(:,13) = [ -0.828198,  0.039428, -1.709050 ]
+		positions(:,14) = [ -0.322058, -0.586123,  0.616602 ]
+		positions(:,15) = [ -1.730920, -0.303799,  1.340380 ]
+		positions(:,16) = [ -0.128357,  1.389090, -0.879219 ]
+		positions(:,17) = [  0.171607, -1.229800, -1.084960 ]
+		positions(:,18) = [ -0.964873,  1.190150,  0.508215 ]
+		positions(:,19) = [ -0.663528, -1.440350,  0.301547 ]
+		positions(:,20) = [ -0.788369, -0.197859,  1.369470 ]
+		positions(:,21) = [  0.990682, -0.793004,  1.031510 ]
+		positions(:,22) = [ -0.111230,  1.240740,  1.038480 ]
+		positions(:,23) = [ -0.299316, -0.815608, -0.344876 ]
+		positions(:,24) = [  0.542311, -0.759713,  0.172659 ]
+		positions(:,25) = [ -0.630948, -1.645260, -0.671076 ]
+		positions(:,26) = [ -0.926011,  0.804005, -1.081850 ]
+		positions(:,27) = [  0.870075,  0.210519, -1.411030 ]
+		positions(:,28) = [ -0.396294,  0.022363, -0.862294 ]
+		positions(:,29) = [  0.970240, -0.777405, -1.467370 ]
+		positions(:,30) = [  0.030797,  0.005413, -0.023852 ]
+		positions(:,31) = [ -1.260820, -0.942664, -0.357066 ]
+		positions(:,32) = [  0.805167,  0.826620,  1.158750 ]
+		positions(:,33) = [ -0.695545, -1.173590,  1.267680 ]
+		positions(:,34) = [  0.693501,  1.655450,  0.621988 ]
+		positions(:,35) = [  0.730557,  1.445890, -0.350650 ]
+		positions(:,36) = [  1.030510, -1.172880, -0.556398 ]
+		positions(:,37) = [ -1.361560, -0.087050, -0.876801 ]
+		positions(:,38) = [ -0.996322,  1.544620, -0.420440 ]
+		positions(:,39) = [ -1.446530,  0.678626, -0.229589 ]
+		positions(:,40) = [  0.497630, -0.384045, -0.741536 ]
+		positions(:,41) = [  0.188800, -1.378840,  0.832689 ]
+		positions(:,42) = [  1.461940, -0.282646, -0.758430 ]
+		positions(:,43) = [ -0.042221,  0.625164, -1.534480 ]
+		positions(:,44) = [  0.072276, -0.374439, -1.613020 ]
+		positions(:,45) = [  1.507620, -0.666202,  0.174417 ]
+		positions(:,46) = [  0.110290, -0.618478,  1.486950 ]
+		positions(:,47) = [ -0.740567, -0.814883, -1.209060 ]
+		positions(:,48) = [  0.360660,  0.826244,  0.297255 ]
+		positions(:,49) = [  1.421620,  0.097628,  0.829766 ]
+		positions(:,50) = [ -1.850230, -0.211508, -0.005516 ]
+		positions(:,51) = [ -0.918918,  0.777533,  1.420980 ]
+		positions(:,52) = [  1.347410,  0.717440, -0.679872 ]
+		positions(:,53) = [ -1.397640,  0.309736,  0.697718 ]
+		positions(:,54) = [ -0.153001,  1.624950,  0.102330 ]
+		positions(:,55) = [  0.891634, -0.028392,  1.661160 ]
+		positions(:,56) = [  0.744650,  1.192250, -1.312630 ]
+		
+		positions = positions*r0
+		
+		call evaluatePotential( potential, positions, V, forces )
+		
+		write(*,"(A,F10.5,A)") "Energy   = ", V/eV, " eV"
+		write(*,"(A,F10.5,A)") "Expected = ", -206.0150172, " eV"
+		write(*,"(A,F10.5,A)") "Error    = ", V/eV-(-206.0150172_8), " eV"
 		write(*,*) ""
 		write(*,"(A,F10.5,A)") "Gradient = ", sqrt(sum(forces**2)/real(N,8))/(eV/r0), " eV/r0"
 		
