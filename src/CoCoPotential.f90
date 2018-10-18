@@ -248,43 +248,16 @@ module CoCoPotential_
 		real(8) :: output
 		
 		class(IntegerListIterator), pointer :: iter
-		integer :: j, N
+		integer :: j
 		real(8) ::  rij(3)
 		real(8) ::  d
 		
 		if ( this.model /= GUPTA ) return
 		
-		N = size(positions,dim=2)
-		
-		output = 0.0_8
-		
-! 		if( present(neighbourList) ) then
-! 			if( i /= N ) then
-! 				iter => neighbourList(i).begin
-! 				do while( associated(iter) )
-! 					j = iter.data
-! 					
-! 					if( j>i ) then
-! 						rij(:) = positions(:,i)-positions(:,j)
-! 						d = norm2(rij)
-! 						
-! 						output = output + dbeta( zeta**2, 2.0_8*q, r0, d )
-! 					end if
-! 					
-! 					iter => iter.next
-! 				end do
-! 			end if
-! 		else
-! 			do j=1,N
-! 				if( i/=j ) then
-					rij(:) = positions(:,i)-positions(:,j)
-					d = norm2(rij)
-				
-					output = zeta**2*dbeta( 1.0_8, 2.0_8*q, r0, d )
-! 				end if
-! 				end if
-! 			end do
-! 		end if
+		rij(:) = positions(:,i)-positions(:,j)
+		d = norm2(rij)
+	
+		output = zeta**2*dbeta( 1.0_8, 2.0_8*q, r0, d )
 		
 		if( present(Vnl) ) then
 			output = output/2.0_8/Vnl
@@ -348,10 +321,10 @@ module CoCoPotential_
 	end subroutine getNeighbourList
 	
 	!>
-	!! @brief
+	!! @brief Evaluates the potential 'V' and the forces 'F' for a given geometry 'positions' in a.u.
 	!!
-	subroutine evaluatePotential( potential, positions, V, F )
-		type(CoCoPotential), intent(in) :: potential
+	subroutine evaluatePotential( this, positions, V, F )
+		type(CoCoPotential), intent(in) :: this
 		real(8), allocatable, intent(in) :: positions(:,:)
 		real(8), intent(out) :: V
 		real(8), allocatable :: F(:,:)
@@ -374,11 +347,7 @@ module CoCoPotential_
 					rij(:) = positions(:,i)-positions(:,j)
 					d = norm2(rij)
 					
-					F(:,i) = F(:,i) - (rij(:)/d)*potential.dV( d )
-					
-! 					do k=1,N
-						F(:,i) = F(:,i) - (rij(:)/d)*potential.dVnl( i, j, positions )
-! 					end do
+					F(:,i) = F(:,i) - (rij(:)/d)*this.dV( d ) - (rij(:)/d)*this.dVnl( i, j, positions )
 				end if
 			end do
 			
@@ -388,16 +357,16 @@ module CoCoPotential_
 					rij(:) = positions(:,i)-positions(:,j)
 					d = norm2(rij)
 				
-					V = V + potential.V( d )
+					V = V + this.V( d )
 					
 				end do
-				V = V + potential.Vnl( i, positions )
-! 				V = V + potential.Vnl( i, positions, neighbourList )
+				V = V + this.Vnl( i, positions )
+! 				V = V + this.Vnl( i, positions, neighbourList )
 				
 			end if
 		end do
-		V = V + potential.Vnl( N, positions )
-! 		V = V + potential.Vnl( N, positions, neighbourList )
+		V = V + this.Vnl( N, positions )
+! 		V = V + this.Vnl( N, positions, neighbourList )
 		
 	end subroutine evaluatePotential
 	
